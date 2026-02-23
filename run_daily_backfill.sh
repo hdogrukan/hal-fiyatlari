@@ -29,5 +29,21 @@ touch "${LOG_FILE}"
     "${PYTHON_BIN}" "${SCRIPT_DIR}/backfill_hal_api.py" --db "${MAIN_DB}"
   fi
 
+  git -C "${SCRIPT_DIR}" add -- "${MAIN_DB}"
+  if git -C "${SCRIPT_DIR}" diff --cached --quiet -- "${MAIN_DB}"; then
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] db degismedi; commit/push atlandi."
+  else
+    if ! git -C "${SCRIPT_DIR}" config user.name >/dev/null; then
+      git -C "${SCRIPT_DIR}" config user.name "hal-bot"
+    fi
+    if ! git -C "${SCRIPT_DIR}" config user.email >/dev/null; then
+      git -C "${SCRIPT_DIR}" config user.email "hal-bot@localhost"
+    fi
+
+    git -C "${SCRIPT_DIR}" commit -m "Hal fiyatlari guncellendi: $(date '+%Y-%m-%d %H:%M:%S')" -- "${MAIN_DB}"
+    git -C "${SCRIPT_DIR}" push origin HEAD
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] git push tamamlandi."
+  fi
+
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] backfill end"
 } >> "${LOG_FILE}" 2>&1
