@@ -6,7 +6,6 @@ ROOT_DIR="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 LOG_FILE="${SCRIPT_DIR}/cron_backfill.log"
 LOCK_FILE="${SCRIPT_DIR}/.daily_backfill.lock"
 MAIN_DB="${SCRIPT_DIR}/hal_fiyatlari.db"
-MIRROR_DB="${ROOT_DIR}/hal_project/hal_fiyatlari.db"
 
 if [[ -x "${ROOT_DIR}/.venv/bin/python" ]]; then
   PYTHON_BIN="${ROOT_DIR}/.venv/bin/python"
@@ -30,9 +29,5 @@ touch "${LOG_FILE}"
     "${PYTHON_BIN}" "${SCRIPT_DIR}/backfill_hal_api.py" --db "${MAIN_DB}"
   fi
 
-  if [[ -f "${MIRROR_DB}" ]]; then
-    cp "${MAIN_DB}" "${MIRROR_DB}"
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] mirror synced: ${MIRROR_DB}"
-  fi
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] backfill end"
 } >> "${LOG_FILE}" 2>&1
